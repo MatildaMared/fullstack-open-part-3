@@ -26,6 +26,16 @@ const notes = [
 
 app.use(express.json());
 
+// Show info page
+app.get("/info", (req, res) => {
+	const date = new Date();
+	const info = `
+    <p>Phonebook has info for ${notes.length} people</p>
+    <p>${date}</p>
+    `;
+	res.send(info);
+});
+
 // GET all notes
 app.get("/api/notes", (req, res) => {
 	res.status(200).json(notes);
