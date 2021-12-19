@@ -37,7 +37,7 @@ app.get("/info", (req, res) => {
 });
 
 // GET all notes
-app.get("/api/notes", (req, res) => {
+app.get("/api/persons", (req, res) => {
 	res.status(200).json(notes);
 });
 
