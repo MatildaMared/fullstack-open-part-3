@@ -60,7 +60,7 @@ app.delete("/api/persons/:id", (req, res) => {
 	res.status(204).end();
 });
 
-// CREATE new person
+// POST – create new person
 app.post("/api/persons", (req, res) => {
 	const { name, number } = req.body;
 	const id = Math.floor(Math.random() * 1000000);
@@ -69,6 +69,20 @@ app.post("/api/persons", (req, res) => {
 		number,
 		id,
 	};
+
+	// Return error if name or number is missing
+	if (!name || !number) {
+		return res.status(400).json({ error: "name or number missing" });
+	}
+	// Return error if person already exists in persons array
+	else if (
+		persons.find(
+			(person) => person.name.trim().toLowerCase() === name.trim().toLowerCase()
+		)
+	) {
+		return res.status(400).json({ error: "name must be unique" });
+	}
+
 	persons = persons.concat(person);
 	res.status(201).json(person);
 });
