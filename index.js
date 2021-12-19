@@ -60,6 +60,19 @@ app.delete("/api/persons/:id", (req, res) => {
 	res.status(204).end();
 });
 
+// CREATE new person
+app.post("/api/persons", (req, res) => {
+	const { name, number } = req.body;
+	const id = Math.floor(Math.random() * 1000000);
+	const person = {
+		name,
+		number,
+		id,
+	};
+	persons = persons.concat(person);
+	res.status(201).json(person);
+});
+
 const PORT = 3001;
 
 app.listen(PORT, () => {
