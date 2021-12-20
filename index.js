@@ -29,29 +29,33 @@ app.get("/info", (req, res) => {
 	res.send(info);
 });
 
-// GET all persons
+// GET - all persons
 app.get("/api/persons", (req, res) => {
 	Person.find({}).then((persons) => {
 		res.json(persons);
 	});
 });
 
-// GET single person by id
-app.get("/api/persons/:id", (req, res) => {
-	Person.findById(req.params.id).then((person) => {
-		res.json(person);
-	});
+// GET - single person by id
+app.get("/api/persons/:id", (req, res, next) => {
+	Person.findById(req.params.id)
+		.then((person) => {
+			res.json(person);
+		})
+		.catch((error) => next(error));
 });
 
-// DELETE person by id
-// app.delete("/api/persons/:id", (req, res) => {
-// 	const id = Number(req.params.id);
-// 	persons = persons.filter((person) => person.id !== id);
-// 	res.status(204).end();
-// });
+// DELETE - person by id
+app.delete("/api/persons/:id", (req, res, next) => {
+	Person.findByIdAndRemove(req.params.id)
+		.then((result) => {
+			res.status(204).end();
+		})
+		.catch((error) => next(error));
+});
 
 // POST – create new person
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
 	const { name, number } = req.body;
 
 	if (!req.body) {
@@ -67,6 +71,33 @@ app.post("/api/persons", (req, res) => {
 		res.json(savedPerson);
 	});
 });
+
+// PUT - update person number
+app.put("/api/persons/:id", (req, res, next) => {
+	const { number } = req.body;
+
+	const person = {
+		number,
+	};
+
+	Person.findByIdAndUpdate(req.params.id, person, { new: true })
+		.then((updatedPerson) => {
+			res.json(updatedPerson);
+		})
+		.catch((error) => next(error));
+});
+
+const errorHandler = (error, request, response, next) => {
+	console.error(error.message);
+
+	if (error.name === "CastError") {
+		return response.status(400).send({ error: "malformatted id" });
+	}
+
+	next(error);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 
