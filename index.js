@@ -26,7 +26,13 @@ let persons = [
 ];
 
 app.use(express.json());
-app.use(morgan("tiny"));
+
+// Exercise 3.7
+// app.use(morgan("tiny"));
+
+// Exercise 3.8
+morgan.token("body", (req, res) => JSON.stringify(req.body));
+app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body"));
 
 // Show info page
 app.get("/info", (req, res) => {
