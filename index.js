@@ -28,6 +28,7 @@ let persons = [
 
 app.use(express.json());
 app.use(cors());
+app.use(express.static("build"));
 
 // Exercise 3.7
 // app.use(morgan("tiny"));
