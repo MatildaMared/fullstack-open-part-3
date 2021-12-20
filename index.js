@@ -22,11 +22,11 @@ app.use(
 // Show info page
 app.get("/info", (req, res) => {
 	const date = new Date();
-	const info = `
-    <p>Phonebook has info for ${persons.length} people</p>
-    <p>${date}</p>
-    `;
-	res.send(info);
+	Person.find({}).then((persons) => {
+		res.send(
+			`<p>Phonebook has info for ${persons.length} people</p><p>${date}</p>`
+		);
+	});
 });
 
 // GET - all persons
