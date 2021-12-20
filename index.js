@@ -1,30 +1,10 @@
+require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
+const Person = require("./models/person");
+const { response } = require("express");
 const app = express();
-
-let persons = [
-	{
-		id: 1,
-		name: "Arto Hellas",
-		number: "040-123456",
-	},
-	{
-		id: 2,
-		name: "Ada Lovelace",
-		number: "39-44-5323523",
-	},
-	{
-		id: 3,
-		name: "Dan Abramov",
-		number: "12-43-234345",
-	},
-	{
-		id: 4,
-		name: "Mary Poppendieck",
-		number: "39-23-6423122",
-	},
-];
 
 app.use(express.json());
 app.use(cors());
@@ -51,56 +31,44 @@ app.get("/info", (req, res) => {
 
 // GET all persons
 app.get("/api/persons", (req, res) => {
-	res.status(200).json(persons);
+	Person.find({}).then((persons) => {
+		res.json(persons);
+	});
 });
 
 // GET single person by id
 app.get("/api/persons/:id", (req, res) => {
-	const id = Number(req.params.id);
-	const person = persons.find((person) => person.id === id);
-
-	if (person) {
-		res.status(200).json(person);
-	} else {
-		res.status(404).end();
-	}
+	Person.findById(req.params.id).then((person) => {
+		res.json(person);
+	});
 });
 
 // DELETE person by id
-app.delete("/api/persons/:id", (req, res) => {
-	const id = Number(req.params.id);
-	persons = persons.filter((person) => person.id !== id);
-	res.status(204).end();
-});
+// app.delete("/api/persons/:id", (req, res) => {
+// 	const id = Number(req.params.id);
+// 	persons = persons.filter((person) => person.id !== id);
+// 	res.status(204).end();
+// });
 
 // POST – create new person
 app.post("/api/persons", (req, res) => {
 	const { name, number } = req.body;
-	const id = Math.floor(Math.random() * 1000000);
-	const person = {
+
+	if (!req.body) {
+		return res.status(400).json({ error: "content missing" });
+	}
+
+	const person = new Person({
 		name,
 		number,
-		id,
-	};
+	});
 
-	// Return error if name or number is missing
-	if (!name || !number) {
-		return res.status(400).json({ error: "name or number missing" });
-	}
-	// Return error if person already exists in persons array
-	else if (
-		persons.find(
-			(person) => person.name.trim().toLowerCase() === name.trim().toLowerCase()
-		)
-	) {
-		return res.status(400).json({ error: "name must be unique" });
-	}
-
-	persons = persons.concat(person);
-	res.status(201).json(person);
+	person.save().then((savedPerson) => {
+		res.json(savedPerson);
+	});
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
